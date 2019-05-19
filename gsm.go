@@ -108,7 +108,6 @@ const ConnectionStateCommand Command = `AT+CIPSTATUS`
 const CheckNetworkRegistrationCommand Command = `AT+CGREG?`
 const GetLocalIPAddressCommand Command = `AT+CIFSR`
 const EchoOffCommand Command = `ATE0`
-const EchoOnCommand Command = `ATE1`
 
 type ResponseMessage string
 
@@ -236,10 +235,10 @@ func (g *DefaultGsmModule) WaitForNetworkRegistration() error {
 		registrationStatus := NetworkRegistrationStatus(s[0][1])
 		switch registrationStatus {
 		case TryingToRegister, NotRegistered:
-			if retries == maxRetries.(int) {
+			if retries == int(maxRetries.(int)) {
 				return errors.New("maximum retries for registering to network")
 			}
-			time.Sleep(maxRetryDelay.(time.Duration))
+			time.Sleep(time.Duration(maxRetryDelay.(time.Duration)))
 			retries++
 			continue
 		case RegistrationDenied, UnknownRegistrationError:

@@ -66,7 +66,7 @@ func (c NetworkRegistrationRetries) Value() interface{} {
 }
 
 func (NetworkRegistrationRetries) Default() interface{} {
-	return 15
+	return NetworkRegistrationRetries(15)
 }
 
 type NetworkRegistrationRetryDelay time.Duration
@@ -82,5 +82,5 @@ func (c NetworkRegistrationRetryDelay) Value() interface{} {
 }
 
 func (NetworkRegistrationRetryDelay) Default() interface{} {
-	return 3 * time.Second
+	return NetworkRegistrationRetryDelay(3 * time.Second)
 }
