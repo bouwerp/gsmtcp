@@ -1,0 +1,6 @@
+github.com/argandas/serial v0.0.0-20160316175758-889a5ad85462 h1:Hl0NBpA4cJvqHyrm3mhAb+g9bzimPr6pmb9JhfV5PhA=
+github.com/argandas/serial v0.0.0-20160316175758-889a5ad85462/go.mod h1:IPXZreh+vkWR8Dr8jwAZJo/L9Kpsw9zSkwYFEJ7eVro=
+github.com/bouwerp/log v0.0.1 h1:ypLtU8HTh2M9H+HDZ8V6fCEL1UKjC/O/knxuqhI5ijE=
+github.com/bouwerp/log v0.0.1/go.mod h1:aeE/8yw3ScStU8BY45Z9dUNLeVh2SllTKWt4aGvWkNw=
+periph.io/x/periph v3.4.0+incompatible h1:5gzxE4ryPq52cdqSw0mErR6pyJK8cBF2qdUAcOWh0bo=
+periph.io/x/periph v3.4.0+incompatible/go.mod h1:EWr+FCIU2dBWz5/wSWeiIUJTriYv9v2j2ENBmgYyy7Y=
