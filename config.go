@@ -1,4 +1,4 @@
-package gsm
+package gsmtcp
 
 import "time"
 
