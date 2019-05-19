@@ -235,10 +235,10 @@ func (g *DefaultGsmModule) WaitForNetworkRegistration() error {
 		registrationStatus := NetworkRegistrationStatus(s[0][1])
 		switch registrationStatus {
 		case TryingToRegister, NotRegistered:
-			if retries == int(maxRetries.(int)) {
+			if retries == int(maxRetries.(NetworkRegistrationRetries)) {
 				return errors.New("maximum retries for registering to network")
 			}
-			time.Sleep(time.Duration(maxRetryDelay.(time.Duration)))
+			time.Sleep(time.Duration(maxRetryDelay.(NetworkRegistrationRetryDelay)))
 			retries++
 			continue
 		case RegistrationDenied, UnknownRegistrationError:
