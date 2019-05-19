@@ -30,7 +30,7 @@ func getConfigValue(configType ConfigType, configs ...Config) interface{} {
 		case NetworkRegistrationRetryDelayConfig:
 			return NetworkRegistrationRetryDelay(0).Default()
 		case NetworkRegistrationRetriesConfig:
-			return NetworkRegistrationRetryDelay(0).Default()
+			return NetworkRegistrationRetries(0).Default()
 		default:
 			return nil
 		}
