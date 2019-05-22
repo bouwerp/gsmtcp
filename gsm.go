@@ -253,6 +253,7 @@ func (g *DefaultGsmModule) WaitForNetworkRegistration() error {
 
 // SendRawTcpData sends the given data to to open connection.
 func (g *DefaultGsmModule) SendRawTcpData(data []byte) error {
+	sendTimeout := getConfigValue(SendTimeoutConfig, g.configs...)
 	// send the connect command
 	err := g.sp.Println(fmt.Sprintf("%s=%d", string(SendCommand), len(data)))
 	if err != nil {
@@ -266,7 +267,7 @@ func (g *DefaultGsmModule) SendRawTcpData(data []byte) error {
 		return err
 	}
 	_, err = g.sp.WaitForRegexTimeout(fmt.Sprintf("%s",
-		string(SendOkResponse)), 5*time.Second)
+		string(SendOkResponse)), sendTimeout.(time.Duration))
 	if err != nil {
 		return err
 	}

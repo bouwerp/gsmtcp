@@ -31,6 +31,8 @@ func getConfigValue(configType ConfigType, configs ...Config) interface{} {
 			return NetworkRegistrationRetryDelay(0).Default()
 		case NetworkRegistrationRetriesConfig:
 			return NetworkRegistrationRetries(0).Default()
+		case SendTimeoutConfig:
+			return SendTimeout(0).Default()
 		default:
 			return nil
 		}
@@ -84,3 +86,19 @@ func (c NetworkRegistrationRetryDelay) Value() interface{} {
 func (NetworkRegistrationRetryDelay) Default() interface{} {
 	return NetworkRegistrationRetryDelay(3 * time.Second)
 }
+
+type SendTimeout time.Duration
+
+func (SendTimeout) Type() ConfigType {
+	return SendTimeoutConfig
+}
+
+func (c SendTimeout) Value() interface{} {
+	return c
+}
+
+func (SendTimeout) Default() interface{} {
+	return 10 * time.Second
+}
+
+const SendTimeoutConfig ConfigType = "SendTimeoutConfig"
