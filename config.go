@@ -114,7 +114,7 @@ func (Verbose) Type() ConfigType {
 }
 
 func (c Verbose) Value() interface{} {
-	return bool(c)
+	return c
 }
 
 func (Verbose) Default() interface{} {
