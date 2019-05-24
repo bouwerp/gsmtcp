@@ -102,7 +102,7 @@ func (c SendTimeout) Value() interface{} {
 }
 
 func (SendTimeout) Default() interface{} {
-	return 10 * time.Second
+	return SendTimeout(10 * time.Second)
 }
 
 type Verbose bool
