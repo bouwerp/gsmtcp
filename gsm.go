@@ -13,6 +13,7 @@ import (
 
 // NewGsmModule opens a serial connection to the provided serial device.
 func NewGsmModule(device string, configs ...Config) (*DefaultGsmModule, error) {
+	verbose := getConfigValue(VerboseConfig, configs...).(Verbose)
 	// open the serial port
 	sp := serial.New()
 	baudConfig := getConfigValue(BaudConfig, configs...)
@@ -20,7 +21,7 @@ func NewGsmModule(device string, configs ...Config) (*DefaultGsmModule, error) {
 	if err != nil {
 		return nil, err
 	}
-	sp.Verbose = false
+	sp.Verbose = bool(verbose)
 	return &DefaultGsmModule{
 		device:  device,
 		sp:      sp,

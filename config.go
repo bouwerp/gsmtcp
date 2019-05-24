@@ -33,6 +33,8 @@ func getConfigValue(configType ConfigType, configs ...Config) interface{} {
 			return NetworkRegistrationRetries(0).Default()
 		case SendTimeoutConfig:
 			return SendTimeout(0).Default()
+		case VerboseConfig:
+			return Verbose(false).Default()
 		default:
 			return nil
 		}
@@ -89,6 +91,8 @@ func (NetworkRegistrationRetryDelay) Default() interface{} {
 
 type SendTimeout time.Duration
 
+const SendTimeoutConfig ConfigType = "SendTimeoutConfig"
+
 func (SendTimeout) Type() ConfigType {
 	return SendTimeoutConfig
 }
@@ -101,4 +105,18 @@ func (SendTimeout) Default() interface{} {
 	return 10 * time.Second
 }
 
-const SendTimeoutConfig ConfigType = "SendTimeoutConfig"
+type Verbose bool
+
+const VerboseConfig ConfigType = "VerboseConfig"
+
+func (Verbose) Type() ConfigType {
+
+}
+
+func (c Verbose) Value() interface{} {
+	return bool(c)
+}
+
+func (Verbose) Default() interface{} {
+	return Verbose(false)
+}
