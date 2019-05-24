@@ -110,7 +110,7 @@ type Verbose bool
 const VerboseConfig ConfigType = "VerboseConfig"
 
 func (Verbose) Type() ConfigType {
-
+	return VerboseConfig
 }
 
 func (c Verbose) Value() interface{} {
