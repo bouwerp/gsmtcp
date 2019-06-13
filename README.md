@@ -3,7 +3,7 @@ A golang library for TCP communication over an embedded GSM device. It was
 primarily developed with the SIM800 series of devices interfacing with Raspberry Pi, and is still very much
 a work in progress.
 
-# Usage example
+## Usage example
 
 When working with a Raspberry Pi, for example, the peripheral drivers
 must first be initialised. Utilising [periph.io](https://periph.io):
@@ -57,7 +57,7 @@ defer func() {
 
 ## Establishing a TLS connection
 
-A secure connection can be establish through _golang_'s standard libraries:
+A secure connection can be established by utilising _golang_'s standard libraries:
 
 ```go
 tlsConfig := &tls.Config{
@@ -89,3 +89,5 @@ if err != nil {
     log.Error(err)
 }
 ```
+
+The certificate (`*cert`) can be generated with the help of [Talisman](https://github.com/bouwerp/talisman).
