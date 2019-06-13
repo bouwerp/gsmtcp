@@ -54,3 +54,38 @@ defer func() {
     time.Sleep(1 * time.Second)
 }()
 ```
+
+## Establishing a TLS connection
+
+A secure connection can be establish through _golang_'s standard libraries:
+
+```go
+tlsConfig := &tls.Config{
+    Certificates: []tls.Certificate{*cert},
+    VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+        for _, chain := range verifiedChains {
+            for _, c := range chain {
+                // peer certificate verification
+            }
+        }
+        return nil
+    },
+    InsecureSkipVerify: true,
+    Rand:               rand.Reader,
+    MinVersion:         tls.VersionTLS12,
+}
+
+tlsConn := tls.Client(conn, tlsConfig)
+defer func() {
+    err := tlsConn.Close()
+    if err != nil {
+        log.Error(err)
+    }
+}()
+
+// perform the handshake
+err = tlsConn.Handshake()
+if err != nil {
+    log.Error(err)
+}
+```
