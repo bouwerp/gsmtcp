@@ -109,6 +109,7 @@ const ConnectionStateCommand Command = `AT+CIPSTATUS`
 const CheckNetworkRegistrationCommand Command = `AT+CGREG?`
 const GetLocalIPAddressCommand Command = `AT+CIFSR`
 const EchoOffCommand Command = `ATE0`
+const EchoOnCommand Command = `ATE1`
 
 type ResponseMessage string
 
@@ -178,14 +179,33 @@ func (g *DefaultGsmModule) OpenTcpConnection(ip, port string) error {
 	}
 }
 
-// commandEchoOff turns off the echoing of commands
-func commandEchoOff(s serial.SerialPort) error {
+// CommandEchoOff turns off the echoing of commands
+func (g *DefaultGsmModule) CommandEchoOff() error {
 	// send the connect command
-	err := s.Println(string(EchoOffCommand))
+	err := g.sp.Println(string(EchoOffCommand))
 	if err != nil {
 		return errors.New("could not close connection:" + err.Error())
 	}
-	m, err := s.WaitForRegexTimeout(fmt.Sprintf("%s|%s",
+	m, err := g.sp.WaitForRegexTimeout(fmt.Sprintf("%s|%s",
+		string(OkResponse),
+		string(ErrorResponse)), 3*time.Second)
+	if err != nil {
+		return err
+	}
+	if m != string(OkResponse) {
+		return errors.New(m)
+	}
+	return nil
+}
+
+// CommandEchoOn turns on the echoing of commands
+func (g *DefaultGsmModule) CommandEchoOn() error {
+	// send the connect command
+	err := g.sp.Println(string(EchoOnCommand))
+	if err != nil {
+		return errors.New("could not close connection:" + err.Error())
+	}
+	m, err := g.sp.WaitForRegexTimeout(fmt.Sprintf("%s|%s",
 		string(OkResponse),
 		string(ErrorResponse)), 3*time.Second)
 	if err != nil {
