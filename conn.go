@@ -11,9 +11,8 @@ import (
 )
 
 type Conn struct {
-	g          *DefaultGsmModule
-	remoteIP   string
-	remotePort string
+	g             *DefaultGsmModule
+	remoteAddress string
 }
 
 type Reader struct {
@@ -28,12 +27,12 @@ func NewReader(c net.Conn) io.Reader {
 	return Reader{c: c}
 }
 
-func NewConnection(g *DefaultGsmModule, ip, port string) (net.Conn, error) {
+func NewConnection(g *DefaultGsmModule, address string) (net.Conn, error) {
 	// first make sure it's a new connection
 	_ = g.CloseTcpConnection()
 
 	log.Debug("connecting to server")
-	err := g.OpenTcpConnection(ip, port)
+	err := g.OpenTcpConnection(address)
 	if err != nil {
 		return nil, err
 	}
@@ -49,9 +48,8 @@ func NewConnection(g *DefaultGsmModule, ip, port string) (net.Conn, error) {
 
 	log.Info("successfully connected")
 	return &Conn{
-		g:          g,
-		remoteIP:   ip,
-		remotePort: port,
+		g:             g,
+		remoteAddress: address,
 	}, nil
 }
 

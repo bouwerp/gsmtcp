@@ -8,6 +8,7 @@ import (
 	"periph.io/x/periph/conn/gpio"
 	"periph.io/x/periph/conn/gpio/gpioreg"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -133,7 +134,10 @@ const UnknownRegistrationError NetworkRegistrationStatus = "4"
 const RegisteredRoaming NetworkRegistrationStatus = "5"
 
 // OpenTcpConnection attempts to establish a new connection to the given IP and port.
-func (g *DefaultGsmModule) OpenTcpConnection(ip, port string) error {
+func (g *DefaultGsmModule) OpenTcpConnection(address string) error {
+	addressParts := strings.Split(address, ":")
+	ip := strings.TrimSpace(addressParts[0])
+	port := strings.TrimSpace(addressParts[1])
 	connStr := fmt.Sprintf(string(ConnectCommand), ip, port)
 	// send the connect command
 	err := g.sp.Println(connStr)
