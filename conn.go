@@ -114,7 +114,7 @@ func (c Conn) LocalAddr() net.Addr {
 }
 
 func (c Conn) RemoteAddr() net.Addr {
-	s := strings.Split(c.remoteIP, ".")
+	s := strings.Split(strings.Split(c.remoteAddress, ":")[0], ".")
 	ip1, err := strconv.Atoi(s[0])
 	if err != nil {
 		return nil
