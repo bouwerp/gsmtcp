@@ -35,6 +35,8 @@ func getConfigValue(configType ConfigType, configs ...Config) interface{} {
 			return SendTimeout(0).Default()
 		case VerboseConfig:
 			return Verbose(false).Default()
+		case APNConfig:
+			return APN("").Default()
 		default:
 			return nil
 		}
@@ -71,6 +73,22 @@ func (c NetworkRegistrationRetries) Value() interface{} {
 
 func (NetworkRegistrationRetries) Default() interface{} {
 	return NetworkRegistrationRetries(15)
+}
+
+type APN string
+
+const APNConfig ConfigType = "APNConfig"
+
+func (APN) Type() ConfigType {
+	return APNConfig
+}
+
+func (c APN) Value() interface{} {
+	return c
+}
+
+func (APN) Default() interface{} {
+	return APN("TelkomInternet")
 }
 
 type NetworkRegistrationRetryDelay time.Duration

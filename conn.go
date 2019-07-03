@@ -73,11 +73,15 @@ func (c Conn) Read(b []byte) (n int, err error) {
 }
 
 func (c Conn) Write(b []byte) (n int, err error) {
-	err = c.g.SendRawTcpData(b)
+	n, err = c.g.SendRawTcpData(b)
 	if err != nil {
+		switch err.(type) {
+		case MaxBytesErr:
+			return c.Write(b[n:])
+		}
 		return 0, err
 	}
-	return len(b), nil
+	return n, err
 }
 
 func (c Conn) Close() error {

@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/argandas/serial"
-	"github.com/bouwerp/log"
+	"github.com/rs/zerolog/log"
 	"periph.io/x/periph/conn/gpio"
 	"periph.io/x/periph/conn/gpio/gpioreg"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -23,22 +24,24 @@ func NewGsmModule(device string, configs ...Config) (*DefaultGsmModule, error) {
 		return nil, err
 	}
 	sp.Verbose = bool(verbose)
-	return &DefaultGsmModule{
+	g := &DefaultGsmModule{
 		device:  device,
 		sp:      sp,
 		configs: configs,
-	}, nil
+	}
+	return g, nil
 }
 
 // Init checks the GSM module status, and switches it on if it was off; It then waits for network registration.
 func (g *DefaultGsmModule) Init() error {
-	log.Debug("checking GSM module status")
+	//apn := getConfigValue(APNConfig, g.configs...).(APN)
+	log.Debug().Msg("checking GSM module status")
 	on, err := g.GetStatus()
 	if err != nil {
 		return err
 	}
 	if !on {
-		log.Debug("GSM module is OFF - switching it on")
+		log.Debug().Msg("GSM module is OFF - switching it on")
 		// toggle the SIM868 module
 		err := g.ToggleModule()
 		if err != nil {
@@ -52,21 +55,20 @@ func (g *DefaultGsmModule) Init() error {
 			return err
 		}
 	} else {
-		log.Debug("GMS module is ON")
+		log.Debug().Msg("GMS module is ON")
 	}
-
 	err = g.WaitForNetworkRegistration()
 	if err != nil {
 		return err
 	}
-	log.Debug("registered with network")
+	log.Debug().Msg("registered with network")
 	return nil
 }
 
 // Shutdown switches the GSM module off.
 func (g *DefaultGsmModule) Shutdown() error {
 	// toggle the SIM868 module
-	log.Debug("switching SIM868 module OFF")
+	log.Debug().Msg("switching SIM868 module OFF")
 	err := g.ToggleModule()
 	if err != nil {
 		return err
@@ -87,7 +89,7 @@ func (g *DefaultGsmModule) Shutdown() error {
 func (g *DefaultGsmModule) CloseGsmModule() {
 	err := g.sp.Close()
 	if err != nil {
-		log.Error("could not close serial device", g.device, ":", err)
+		log.Error().Err(err).Msgf("could not close serial device %s", g.device)
 	}
 }
 
@@ -145,7 +147,7 @@ func (g *DefaultGsmModule) OpenTcpConnection(address string) error {
 		return errors.New("could not open connection:" + err.Error())
 	}
 	// First phase
-	log.Debug("waiting for OK")
+	log.Debug().Msg("waiting for OK")
 	m, err := g.sp.WaitForRegexTimeout(
 		fmt.Sprintf("%s|%s",
 			string(OkResponse),
@@ -155,7 +157,7 @@ func (g *DefaultGsmModule) OpenTcpConnection(address string) error {
 	}
 	if m == string(OkResponse) {
 		// Second phase
-		log.Debug("waiting for CONNECT OK")
+		log.Debug().Msg("waiting for CONNECT OK")
 		m, err = g.sp.WaitForRegexTimeout(
 			fmt.Sprintf("%s|%s|%s",
 				string(ConnectOkResponse),
@@ -171,7 +173,7 @@ func (g *DefaultGsmModule) OpenTcpConnection(address string) error {
 		}
 	} else {
 		// Second phase
-		log.Debug("waiting for CONNECT FAIL or TCP CLOSED")
+		log.Debug().Msg("waiting for CONNECT FAIL or TCP CLOSED")
 		m, err = g.sp.WaitForRegexTimeout(
 			fmt.Sprintf("%s|%s",
 				string(ConnectFailedResponse),
@@ -277,26 +279,49 @@ func (g *DefaultGsmModule) WaitForNetworkRegistration() error {
 }
 
 // SendRawTcpData sends the given data to to open connection.
-func (g *DefaultGsmModule) SendRawTcpData(data []byte) error {
+func (g *DefaultGsmModule) SendRawTcpData(data []byte) (int, error) {
 	sendTimeout := time.Duration(getConfigValue(SendTimeoutConfig, g.configs...).(SendTimeout))
-	// send the connect command
-	err := g.sp.Println(fmt.Sprintf("%s=%d", string(SendCommand), len(data)))
+	log.Debug().Msgf("sending %d bytes", len(data))
+	err := g.sp.Println(fmt.Sprintf("%s?", string(SendCommand)))
+	match, err := g.sp.WaitForRegexTimeout("\\+CIPSEND: [0-9]+", sendTimeout)
 	if err != nil {
-		return err
+		return -1, err
+	}
+	matches := regexp.MustCompile("\\+CIPSEND: ([0-9]+)").FindAllStringSubmatch(match, -1)
+	maxBytes, err := strconv.Atoi(matches[0][1])
+	if err != nil {
+		log.Error().Err(err)
+		return -1, err
+	}
+	bytesToWrite := len(data)
+	dataToWrite := data[:]
+	maxBytesReached := false
+	if len(data) > maxBytes {
+		bytesToWrite = maxBytes
+		dataToWrite = data[:maxBytes]
+		maxBytesReached = true
+	}
+	// send the 'send' command
+	err = g.sp.Println(fmt.Sprintf("%s=%d", string(SendCommand), bytesToWrite))
+	if err != nil {
+		return -1, err
 	}
 	time.Sleep(50 * time.Millisecond)
-	sendData := append(data)
+	sendData := append(dataToWrite)
 	// send the actual data
 	_, err = g.sp.Write(sendData)
 	if err != nil {
-		return err
+		return -1, err
 	}
 	_, err = g.sp.WaitForRegexTimeout(fmt.Sprintf("%s",
 		string(SendOkResponse)), sendTimeout)
 	if err != nil {
-		return err
+		return -1, err
 	}
-	return nil
+	if maxBytesReached {
+		return bytesToWrite, MaxBytesErr{}
+	}
+	return bytesToWrite, err
 }
 
 func (g *DefaultGsmModule) ReadData() (byte, error) {
@@ -335,7 +360,7 @@ func (g *DefaultGsmModule) IsConnected() (bool, error) {
 func (g *DefaultGsmModule) GetStatus() (bool, error) {
 	err := g.sp.Println(string(StatusCommand))
 	if err != nil {
-		log.Debug("GetStatus", "Println", err.Error())
+		log.Error().Err(err)
 		return false, err
 	}
 	_, err = g.sp.WaitForRegexTimeout(string(OkResponse), 5*time.Second)
@@ -352,7 +377,7 @@ func (g *DefaultGsmModule) GetStatus() (bool, error) {
 func (g *DefaultGsmModule) GetLocalIPAddress() (string, error) {
 	err := g.sp.Println(string(GetLocalIPAddressCommand))
 	if err != nil {
-		log.Debug("GetLocalIPAddress", "Println", err.Error())
+		log.Error().Err(err)
 		return "", err
 	}
 	ip, err := g.sp.WaitForRegexTimeout("[0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}", 3*time.Second)
@@ -364,7 +389,7 @@ func (g *DefaultGsmModule) GetLocalIPAddress() (string, error) {
 
 // ToggleModule toggles the PWRKEY pin of the module.
 func (g *DefaultGsmModule) ToggleModule() error {
-	log.Debug("toggling SIM868")
+	log.Debug().Msg("toggling SIM868")
 	err := gpioreg.ByName("GPIO4").Out(gpio.Low)
 	if err != nil {
 		return errors.New(err.Error())
