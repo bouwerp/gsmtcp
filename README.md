@@ -41,7 +41,7 @@ defer func() {
 
 A TCP connection can now be created:
 ```go
-conn, err := gsm.NewConnection(g, "<IPv4>", "<PORT")
+conn, err := gsm.NewConnection(g, "<IPv4>:<PORT>")
 if err != nil {
     log.Error("could not establish a new connection", err)
     os.Exit(1)
@@ -82,6 +82,11 @@ defer func() {
         log.Error(err)
     }
 }()
+```
+
+If the TLS TCP connection will be used as-is to send raw data, the handshake
+can be established as follows:
+```go
 
 // perform the handshake
 err = tlsConn.Handshake()
@@ -91,3 +96,12 @@ if err != nil {
 ```
 
 The certificate (`*cert`) can be generated with the help of [Talisman](https://github.com/bouwerp/talisman).
+
+## JSON-RPC
+
+```go
+var reply greeter.HelloReply
+err = gsmtcp.DoRequest("https://some-server", tlsConn, 
+	"Greeter.SayHello",greeter.HelloRequest{Name: "Homer"}, &reply)
+```
+

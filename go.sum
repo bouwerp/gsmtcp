@@ -1,8 +1,8 @@
 github.com/argandas/serial v0.0.0-20160316175758-889a5ad85462 h1:Hl0NBpA4cJvqHyrm3mhAb+g9bzimPr6pmb9JhfV5PhA=
 github.com/argandas/serial v0.0.0-20160316175758-889a5ad85462/go.mod h1:IPXZreh+vkWR8Dr8jwAZJo/L9Kpsw9zSkwYFEJ7eVro=
-github.com/bouwerp/log v0.0.5 h1:VUs3hcWxktLYSy+c1VskiY6YovkF2ZP4Fd+Fyy1EMIw=
-github.com/bouwerp/log v0.0.5/go.mod h1:aeE/8yw3ScStU8BY45Z9dUNLeVh2SllTKWt4aGvWkNw=
 github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=
+github.com/oklog/ulid v1.3.1 h1:EGfNDEx6MqHz8B3uNV6QAib1UR2Lm97sHi3ocA6ESJ4=
+github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/rs/xid v1.2.1/go.mod h1:+uKXf+4Djp6Md1KODXJxgGQPKngRmWyn10oCKFzNHOQ=
 github.com/rs/zerolog v1.14.3 h1:4EGfSkR2hJDB0s3oFfrlPqjU1e4WLncergLil3nEKW0=

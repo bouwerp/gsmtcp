@@ -2,7 +2,7 @@ package gsmtcp
 
 import (
 	"errors"
-	"github.com/bouwerp/log"
+	"github.com/rs/zerolog/log"
 	"io"
 	"net"
 	"strconv"
@@ -31,13 +31,13 @@ func NewConnection(g *DefaultGsmModule, address string) (net.Conn, error) {
 	// first make sure it's a new connection
 	_ = g.CloseTcpConnection()
 
-	log.Debug("connecting to server")
+	log.Debug().Msg("connecting to server")
 	err := g.OpenTcpConnection(address)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Debug("check if we're connected")
+	log.Debug().Msg("check if we're connected")
 	connected, err := g.IsConnected()
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func NewConnection(g *DefaultGsmModule, address string) (net.Conn, error) {
 		return nil, errors.New("not connected")
 	}
 
-	log.Info("successfully connected")
+	log.Debug().Msg("successfully connected")
 	return &Conn{
 		g:             g,
 		remoteAddress: address,
@@ -81,7 +81,7 @@ func (c Conn) Write(b []byte) (n int, err error) {
 		}
 		return 0, err
 	}
-	return n, err
+	return n, nil
 }
 
 func (c Conn) Close() error {
